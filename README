@@ -1,0 +1,57 @@
+Programming assignment #2
+Shash
+monofuel
+CS5950
+
+shell that restricts user command execution to a set of binaries
+specified via SHA1 sum.
+
+log all commands to be audited by admin
+
+.shash.config secifies:
+	the fully qualified name of all binaries that can be executed
+	the sha1 sum the binary must have
+	the environment in which each binary must be executed
+
+	no blank lines
+	one or more environment descriptions
+		environment specification
+		set of strings that compromises a process' environment
+		followed by command specification
+		one or more lines containing one element
+		of the environment under which the binary must execute
+		each line contains a variable definition followed
+		by a newline or EOF and has no preceding or following whitespace
+		the string EMPTY is a sntinel value that the environment
+		should be empty
+	command specification containing lines describing the binaries that
+	will execute under the preceding environment
+		contains a sentinel character, a name, and a SHA1 sum
+		contain * as the first character followed by spaces or tabs
+		followed by the fully qualified name of a binary, followed
+		by a variable number of whitespace, followed by  a sha1 sum,
+		followed by whitespace, followed by a newline or EOF.
+	.shash.config should not be writable by group or world. if it is,
+	exit silently with respect to stdout.
+
+on start:
+	clear the environment
+	read the config
+		create log entry if there is an error processing the config
+		log the real and effective UIDs,GIDs,time,date,controlling terminal, and problem
+		with the config to .shashLog in the current directory
+	user may then invoke commands using either the fully qualified name or an unqualified command
+	prior to executing the user's commands, the shell will:
+		determine that the named command is in the set of allowed commands
+		if the command is not contained, silently refuse to execute it.
+	ensure that a sha1 sum run over binary matches config
+		if they don't match, silently refuse.
+	create the command environment
+	log the real and effective UIDs,GIDs,time,date,controlling terminal,command entered, and
+	created environment(s) to .shashLog in the current directory
+	execute the command using execve, passing the created environment
+		log an error return from execve with the error code and the
+		time,date, and command logged prior to execution
+a silent exit should include the message "Silent Exit" being emitted to stdout
+shell must handle a single pipe.
+q and quit should cause shell to terminate
